@@ -8,7 +8,6 @@ TOKEN = "8624800637:AAFmjnVUEiV_Ts6cdAZNO1VyG4idGFnJnGQ"  # Твой токен
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-# Список фраз для поддержки
 PHRASES = [
     "у тебя получится",
     "Я верю в тебя.",
@@ -20,6 +19,9 @@ PHRASES = [
     "не забывай про отдых"
 ]
 
+user_plans = {}
+user_mikes = {}
+
 @dp.message(Command("start"))
 async def start(message: types.Message):
     await message.answer(
@@ -29,7 +31,7 @@ async def start(message: types.Message):
         "/plan — записать план на день\n"
         "/done — отметить выполненное\n"
         "/mikes — посмотреть баланс маек\n"
-        "/show – посмотреть планы на день\n"
+        "/show — посмотреть планы на день\n"
         "/help — помощь\n\n"
         "Напиши /plan, чтобы начать!"
     )
@@ -44,29 +46,36 @@ async def daily_message(chat_id):
             await asyncio.sleep(60)
         await asyncio.sleep(30)
 
-# Словарь для хранения планов (chat_id -> список дел)
-user_plans = {}
-
 @dp.message(Command("plan"))
 async def plan(message: types.Message):
     await message.answer("Напиши, что ты планируешь...")
 
-# Словарь для маек (chat_id -> количество)
-user_mikes = {}
-
 @dp.message(Command("done"))
 async def done(message: types.Message):
     chat_id = message.chat.id
+    if chat_id not in user_plans or not user_plans[chat_id]:
+        await message.answer("У тебя нет планов. Сначала напиши /plan.")
+        return
+    plan_text = user_plans[chat_id].pop(0)
     if chat_id not in user_mikes:
         user_mikes[chat_id] = 0
     user_mikes[chat_id] += 2
-    await message.answer(f"Молодец! Ты выполнил дело. +2 майки! Теперь у тебя {user_mikes[chat_id]} маек. 💙")
+    await message.answer(f"Молодец! Ты выполнил: «{plan_text}». +2 майки! Теперь у тебя {user_mikes[chat_id]} маек. 💙")
 
 @dp.message(Command("mikes"))
 async def mikes(message: types.Message):
     chat_id = message.chat.id
     balance = user_mikes.get(chat_id, 0)
     await message.answer(f"У тебя {balance} маек. Выполняй планы, чтобы заработать! 💙")
+
+@dp.message(Command("show"))
+async def show_plans(message: types.Message):
+    chat_id = message.chat.id
+    if chat_id in user_plans and user_plans[chat_id]:
+        plans = "\n".join([f"— {p}" for p in user_plans[chat_id]])
+        await message.answer(f"Твои планы на день:\n{plans}")
+    else:
+        await message.answer("У тебя пока нет планов. Напиши /plan, чтобы добавить.")
 
 @dp.message(Command("help"))
 async def help_cmd(message: types.Message):
@@ -78,18 +87,8 @@ async def help_cmd(message: types.Message):
         "/mikes — посмотреть майки\n"
         "/show — показать планы\n"
         "/help — эта справка\n\n"
-        "Просто напиши мне, если нужна поддержка. 💙")
-    
-
-
-@dp.message(Command("show"))
-async def show_plans(message: types.Message):
-    chat_id = message.chat.id
-    if chat_id in user_plans and user_plans[chat_id]:
-        plans = "\n".join([f"— {p}" for p in user_plans[chat_id]])
-        await message.answer(f"Твои планы на день:\n{plans}")
-    else:
-        await message.answer("У тебя пока нет планов. Напиши /plan, чтобы добавить.")
+        "Просто напиши мне, если нужна поддержка. 💙"
+    )
 
 @dp.message()
 async def handle_plan(message: types.Message):
@@ -98,19 +97,6 @@ async def handle_plan(message: types.Message):
         if chat_id not in user_plans:
             user_plans[chat_id] = []
         user_plans[chat_id].append(message.text)
-        await message.answer(f"Записал: {message.text}. Ты справишься!💙")
-
-@dp.message(Command("done"))
-async def done(message: types.Message):
-    await message.answer("Молодец! Ты выполнил дело. +2 майки! 💙")
-
-@dp.message(Command("mikes"))
-async def mikes(message: types.Message):
-    await message.answer("У тебя пока 0 маек. Выполняй планы, чтобы заработать! 💙")
-
-@dp.message()
-async def handle_plan(message: types.Message):
-    if not message.text.startswith("/"):
         await message.answer(f"Записал: {message.text}. Ты справишься! 💙")
 
 async def main():
