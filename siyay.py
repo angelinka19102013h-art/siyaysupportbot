@@ -51,9 +51,22 @@ user_plans = {}
 async def plan(message: types.Message):
     await message.answer("Напиши, что ты планируешь...")
 
+# Словарь для маек (chat_id -> количество)
+user_mikes = {}
+
+@dp.message(Command("done"))
+async def done(message: types.Message):
+    chat_id = message.chat.id
+    if chat_id not in user_mikes:
+        user_mikes[chat_id] = 0
+    user_mikes[chat_id] += 2
+    await message.answer(f"Молодец! Ты выполнил дело. +2 майки! Теперь у тебя {user_mikes[chat_id]} маек. 💙")
+
 @dp.message(Command("mikes"))
 async def mikes(message: types.Message):
-    await message.answer("У тебя пока 0 маек. Выполняй планы, чтобы заработать! 💙")
+    chat_id = message.chat.id
+    balance = user_mikes.get(chat_id, 0)
+    await message.answer(f"У тебя {balance} маек. Выполняй планы, чтобы заработать! 💙")
 
 @dp.message(Command("help"))
 async def help_cmd(message: types.Message):
@@ -68,10 +81,6 @@ async def help_cmd(message: types.Message):
         "Просто напиши мне, если нужна поддержка. 💙")
     
 
-
-@dp.message(Command("done"))
-async def done(message: types.Message):
-    await message.answer("Молодец! Ты выполнил дело. +2 майки! 💙")
 
 @dp.message(Command("show"))
 async def show_plans(message: types.Message):
