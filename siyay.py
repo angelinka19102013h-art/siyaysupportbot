@@ -51,6 +51,23 @@ user_plans = {}
 async def plan(message: types.Message):
     await message.answer("Напиши, что ты планируешь...")
 
+@dp.message(Command("mikes"))
+async def mikes(message: types.Message):
+    await message.answer("У тебя пока 0 маек. Выполняй планы, чтобы заработать! 💙")
+
+@dp.message(Command("help"))
+async def help_cmd(message: types.Message):
+    await message.answer(
+        "Я бот «Сияй». Вот что я умею:\n"
+        "/start — начать\n"
+        "/plan — записать план\n"
+        "/done — отметить выполненное\n"
+        "/mikes — посмотреть майки\n"
+        "/show — показать планы\n"
+        "/help — эта справка\n\n"
+        "Просто напиши мне, если нужна поддержка. 💙")
+    
+
 
 @dp.message(Command("done"))
 async def done(message: types.Message):
