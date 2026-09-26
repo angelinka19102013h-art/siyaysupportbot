@@ -51,6 +51,11 @@ user_plans = {}
 async def plan(message: types.Message):
     await message.answer("Напиши, что ты планируешь...")
 
+
+@dp.message(Command("done"))
+async def done(message: types.Message):
+    await message.answer("Молодец! Ты выполнил дело. +2 майки! 💙")
+
 @dp.message(Command("show"))
 async def show_plans(message: types.Message):
     chat_id = message.chat.id
