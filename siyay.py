@@ -25,7 +25,7 @@ user_mikes = {}
 @dp.message(Command("start"))
 async def start(message: types.Message):
     await message.answer(
-        "Привет! Я бот «Сияй». Я помогу тебе с планами и поддержкой. 💙\n\n"
+        "Привет! Я бот «Сияй». Я помогу тебе с планами и поддержкой. \n\n"
         "Вот что я умею:\n"
         "/start — показать это сообщение\n"
         "/plan — записать план на день\n"
